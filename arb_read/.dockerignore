@@ -1,0 +1,17 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.swp
+*.swo
+*.log
+*.tmp
+.env
+.git
+.gitignore
+Dockerfile
+vuln
+exploit_*.py
+patch
+patch.c

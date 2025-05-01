@@ -1,0 +1,38 @@
+Arbitrary reads and writes with Format String Vulnerabilities
+
+1. What is a format string vulnerability?
+
+Format string vulnerabilities are when an unsanitized user input is passed to a printf with no format specifiers. For instance, to print a string in C, a printf with the appropriate format specifer for the data type provided should be used.
+
+Example:
+
+	//This is the wrong way!
+	int size = 10;
+	char greet[size];
+	fgets(greet, size, stdin);
+	printf("Hello, ");
+	printf(greet);
+
+	// This is the correct way!
+	int size = 10;
+	char greet[size];
+	fgets(greet, size, stdin);
+	printf("Hello, %s!\n", greet);
+
+Format specfiers for each data type are as follows:
+%s - string
+%c - character
+%p - pointer
+%d or %i - signed integer
+%u unsigned integer
+%o - octal
+%x - hexadecimal
+%f - float
+%e - scientific notation
+
+2. Arbitrary Read
+
+If the printf is not 
+
+3. Arbitrary write
+
