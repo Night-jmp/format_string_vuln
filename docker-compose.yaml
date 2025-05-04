@@ -1,17 +1,20 @@
 version: '3.8'
-
 services:
   arb_read:
+    container_name: arb_read
     build: ./arb_read
     ports:
       - "1337:1337"
 
   student_env:
+    container_name: student_env
     build: ./student_env
     ports:
-      - "22:22"
-      
+      - "2222:22"
+    hostname: student-box
+
   webpage:
+    container_name: webpage
     build: ./webpage
     ports:
       - "8080:8080"

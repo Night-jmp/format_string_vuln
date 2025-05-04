@@ -4,7 +4,7 @@ FROM ubuntu:22.04
 RUN apt-get update && \
     apt-get install -y openssh-server sudo make gcc python3 python3-pip && \
     useradd -ms /bin/bash student && \
-    echo 'student:temp' | chpasswd && \
+    echo 'student:l!f3_l0ng_l34rn3r' | chpasswd && \
     mkdir /var/run/sshd
 
 # Allow password authentication
