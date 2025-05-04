@@ -9,6 +9,6 @@ WORKDIR /app
 
 ENV ADMIN_PASS=63324fd5a244c4397953ca9131222d5c
 
-RUN make vuln
+RUN make
 
-CMD socat TCP-LISTEN:1337,reuseaddr,fork EXEC:./vuln,pty,stderr
+CMD socat TCP-LISTEN:1337,reuseaddr,fork EXEC:./bin/arb_read,pty,stderr

@@ -1,3 +1,11 @@
+ADMIN SECTION:
+
+Requirements: Docker, pwntools, gcc
+
+
+
+STUDENT SECTION:
+
 Arbitrary reads and writes with Format String Vulnerabilities
 
 1. What is a format string vulnerability?
@@ -32,7 +40,53 @@ Format specfiers for each data type are as follows:
 
 2. Arbitrary Read
 
-If the printf is not 
+If the string input into printf is not properly formatted, hackers are able to write their own format specifiers to the string. Take for instance the following pseudocode:
 
-3. Arbitrary write
+	user_string = "%s"
+	printf(user_string)
 
+Notice how there is a formatted string, but the printf does not have a second argument? What will the format string retrieve?
+
+2.a The stack
+
+The stack is a region of memory the program allocates at runtime to track variables, function calls, and other binary protection mechanisms such as stack canaries. 
+
+What does the stack have to do with format string bugs? When we provide a format string to printf, printf doesn't know how many arguments we have provided. It only knows how many format specifiers there are. For each format specifier, a value will be pulled from arguments provided, or the stack. This allows anyone who can write a format specifier to an unsantized string like we have discussed to read and write to anywhere in the memoryspace of the process under attack so long as that section is writable.
+
+3. Hands on portion
+
+Please ssh to <ip>:<port>
+	ssh -p <port> student@<ip>
+
+In your home directory, you should see source code for the vulnerable application. Open this in vim. Any other text editor is heresy. 
+	
+	vim src/arb_read.c
+
+3.a vim cheat sheet
+
+i - insert mode
+esc - exit mode
+:w - write changes
+:wq - write changes and quit
+:q! - exit and dont save changes
+
+How could a hacker steal our very proprietary flags? Lets walk through the code flow of our application. Main calls vuln. Inside of vuln, the flag gets retrieved pre authentication, the application asks for a password, checks, and if the password is valid, the flag is printed. If the password is not valid, it prints the password we attempted, but how it handles the printing of this password is the problem. It sends our input directly to the printf without formatting it properly. So, if we type in a format specifier as the password, we can do some interesting things. Lets try it!
+
+	./bin/arb_read
+
+Lets try "%s" as a password. As you can see, the program printed one of the strings that was already printed. These strings were already on the stack! So now that we know we can read strings on the stack, and we know the flag was placed on the stack, perhaps we can recover it? How far up the stack is our flag? We can fuzz our program to find it! Try putting "%s %s %s". We can see that three addresses on the stack were printed as strings, but not everything on the stack can be represented as a string. What happens if we keep adding more %s? Likely we will end up segfaulting somewhere along the way. So how can we overcome this problem and read values on the stack that won't crash the program?
+
+Lets try format string positional parameters! We can specify what position on the stack we want with the following format: %<int>$<format>. For instance, %3$s should print the 3rd value as a string from the stack. You can confirm this by looking at the last output from our string of three %s we tried earlier. So now we have an extra tool, can we get the flag? We know the flag is fairly close on the stack, so lets just enumerate the memory space by hand. Increment the positional parameter until you get the flag to print. This can vary based on how the binary was compiled, but for this environment, the positional parameter should be 20. 
+
+	./bin/arb_read < <(python3 -c 'print("%20$s")') | grep flag{ | cut -d " " -f 8
+
+But this only gives us the flag of the local binary we are running. The real flag is on a remote service! Lets craft a pwntools script to retrieve the flag from the remote service. Open exploit_read.py and change the payload to reflect what we've discovered.
+
+	./exploit_read.py
+
+Congratulations, you have successfully replicated the attack that hackers would use to steal allll of our flags. Now that you understand how this works, and why, please patch the vulnerability in the C code and run 'make arb_read_patched' to compile the binary.
+
+
+	./bin/arb_read_patched < <(python3 -c 'print("%20$s")')
+
+If you've patched the program correctly, this exploit shouldn't work anymore!
