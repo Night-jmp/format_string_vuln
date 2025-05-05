@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 
 # Install OpenSSH and create a user
 RUN apt-get update && \
-    apt-get install -y openssh-server sudo make gcc python3 python3-pip net-tools vim && \
+    apt-get install -y openssh-server sudo make gcc python3 python3-pip net-tools vim iputils-ping netcat && \
     useradd -ms /bin/bash student && \
     echo 'student:l!f3_l0ng_l34rn3r' | chpasswd && \
     mkdir /var/run/sshd
